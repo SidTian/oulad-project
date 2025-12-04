@@ -49,47 +49,94 @@ def plot_feature_importance(
     X_test,
     y_test,
     feature_names,
-    model_name,
-    save_path="figures/feature_importance_{}.png",
+    model_name: str,
+    save_path: str = "figures/feature_importance_{}.png",
+    top_n: int = 15,
+    max_label_length: int = 50,
 ):
     """
-    Plot feature importance.
-    - Tree models (RF/XGB): use built-in feature_importances_
-    - Logistic Regression: use permutation importance
+    Generate a clean, publication-ready feature importance plot.
+    - Tree models (RF/XGB): use built-in Gini importance
+    - Logistic Regression: use permutation importance with error bars
+    - Long feature names are intelligently truncated
+    - Horizontal bars for perfect readability
     """
-    print(f"Generating feature importance plot for {model_name}")
+    print(f"Generating feature importance plot for {model_name} (top {top_n})")
     model = pipeline.named_steps["model"]
-    if hasattr(model, "feature_importances_"):  # RF / XGBoost
-        print(
-            f"{model_name} is a tree-based model → using built-in feature importances"
-        )
-        print("Number of features:", len(feature_names))
-        importances = pd.Series(
-            model.feature_importances_, index=feature_names
-        ).sort_values(ascending=False)
-        plt.figure(figsize=(10, 8))
-        importances.plot(kind="bar")
-        plt.title(f"{model_name} Feature Importance")
-        plt.savefig(save_path.format(model_name))
-        plt.close()
-    else:  # Logistic Regression
-        print(f"{model_name} is Logistic Regression → using permutation importance")
-        original_feature_names = X_test.columns.tolist()
-        print("Number of original features:", len(original_feature_names))
-        print("Sample feature names:", original_feature_names[:5])
+
+    # === 1. Get feature importances ===
+    if hasattr(model, "feature_importances_"):
+        # Tree-based models
+        importances = pd.Series(model.feature_importances_, index=feature_names)
+        std_aligned = None
+        title_suffix = "Feature Importance (Gini)"
+    else:
+        # Logistic Regression → permutation importance
+        print(f"  → Computing permutation importance for {model_name}...")
         perm = permutation_importance(
-            pipeline, X_test, y_test, n_repeats=5, random_state=42, n_jobs=-1
+            pipeline, X_test, y_test, n_repeats=10, random_state=42, n_jobs=-1
         )
-        print("Permutation importance computed")
-        importances = pd.Series(
-            perm.importances_mean, index=original_feature_names
-        ).sort_values(ascending=False)
-        plt.figure(figsize=(10, 8))
-        importances.plot(kind="bar", yerr=perm.importances_std)
-        plt.title(f"{model_name} Permutation Importance")
-        plt.savefig(save_path.format(model_name))
-        plt.close()
-    print(f"Feature Importance saved to: {save_path.format(model_name)}")
+        importances = pd.Series(perm.importances_mean, index=X_test.columns)
+        # Align standard deviation to the sorted top_n features
+        std_aligned = (
+            pd.Series(perm.importances_std, index=X_test.columns)
+            .loc[importances.index[:top_n]]
+            .values
+        )
+        title_suffix = "Permutation Importance"
+
+    # === 2. Select top N and sort ===
+    importances = importances.sort_values(ascending=False).head(top_n)
+
+    # === 3. Shorten long feature names ===
+    def shorten_label(label: str) -> str:
+        return (
+            label
+            if len(label) <= max_label_length
+            else label[: max_label_length - 3] + "..."
+        )
+
+    labels = [shorten_label(lab) for lab in importances.index]
+
+    # === 4. Plot horizontal bar chart ===
+    plt.figure(figsize=(11, max(6.5, top_n * 0.48)))
+    y_pos = range(len(importances))
+
+    # Main bars
+    bars = plt.barh(y_pos, importances.values, color="#4c72b0", alpha=0.85, height=0.6)
+
+    # Error bars (only for LogReg) — beautiful and non-intrusive
+    if std_aligned is not None:
+        plt.errorbar(
+            importances.values,
+            y_pos,
+            xerr=std_aligned,
+            fmt="none",
+            elinewidth=1.2,
+            capsize=4,
+            capthick=1.2,
+            alpha=0.7,
+            color="black",
+        )
+
+    # === 5. Styling ===
+    plt.yticks(y_pos, labels, fontsize=11)
+    plt.xlabel("Importance", fontsize=12)
+    plt.title(
+        f"{model_name.upper()} - Top {top_n} {title_suffix}",
+        fontsize=14,
+        pad=20,
+        fontweight="bold",
+    )
+    plt.gca().invert_yaxis()  # Most important at the top
+    plt.grid(axis="x", alpha=0.3, linestyle="--", linewidth=0.7)
+    plt.tight_layout()
+
+    # === 6. Save ===
+    path = save_path.format(model_name)
+    plt.savefig(path, dpi=300, bbox_inches="tight", facecolor="white")
+    plt.close()
+    print(f"Feature importance plot saved: {path}")
 
 
 # Optional plot: weekly engagement trend

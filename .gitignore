@@ -47,11 +47,11 @@ data/raw/
 data/processed/
 figures/
 
-# Optional: if you don't want to commit raw data (recommended for GitHub)
 # Remove the lines above and uncomment below if you prefer to track only code
-# data/raw/*.csv
-# data/processed/
-# figures/
+data/raw/*.csv
+data/processed/*.csv
+data/processed/stats.json
+figures/
 
 # But keep the folder structure so Git tracks the directories
 !data/
