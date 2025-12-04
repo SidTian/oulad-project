@@ -8,11 +8,13 @@ Open University Learning Analytics Dataset (OULAD).
 ## Project Goal
 
 Given:
+
 - student click logs (studentVle)
 - resource metadata (vle)
 - student demographic information (studentInfo)
 
 We aim to:
+
 1. Construct weekly behavior features for each student.
 2. Predict whether a student will access any resource in the next week.
 3. Identify which behavioral features contribute most to next-week access.
@@ -29,13 +31,26 @@ Please download these three CSV files and place them in the `data/raw/` folder:
 Open University Learning Analytics Dataset (OULAD)  
 → https://analyse.kmi.open.ac.uk/open-dataset
 
+## Required Raw Data
+
+Please download these three CSV files and place them in the `data/raw/` folder:
+
+- [`studentVle.csv`](https://analyse.kmi.open.ac.uk/open-dataset/download)
+- [`vle.csv`](https://analyse.kmi.open.ac.uk/open-dataset/download)
+- [`studentInfo.csv`](https://analyse.kmi.open.ac.uk/open-dataset/download)
+
+**Official Dataset**:  
+Open University Learning Analytics Dataset (OULAD)  
+→ https://analyse.kmi.open.ac.uk/open-dataset
+
 ## Running the Pipeline
+
 ```bash
 python src/experiments.py
 ```
 
-
 This will:
+
 1. Load raw CSV data
 2. Preprocess and merge tables
 3. Build week-level features
