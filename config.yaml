@@ -1,0 +1,26 @@
+project:
+  name: oulad_behavior_prediction
+  random_seed: 42
+
+paths:
+  data_raw: "./data/raw/"
+  data_processed: "./data/processed/"
+  figures: "./figures/"
+
+task:
+  type: "next_week_access"
+
+features:
+  include_behavioral: true
+  include_demographics: true
+  include_resource_meta: true
+
+training:
+  test_size: 0.2
+  cv_folds: 5
+  scoring: "f1"
+
+models:
+  use_logreg: true
+  use_random_forest: true
+  use_xgboost: true

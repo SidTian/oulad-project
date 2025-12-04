@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Virtual environment (common names)
+venv/
+.venv/
+env/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# PyCharm / IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+
+# Data folders (we don't commit large CSVs)
+data/raw/
+data/processed/
+figures/
+
+# Optional: if you don't want to commit raw data (recommended for GitHub)
+# Remove the lines above and uncomment below if you prefer to track only code
+# data/raw/*.csv
+# data/processed/
+# figures/
+
+# But keep the folder structure so Git tracks the directories
+!data/
+!data/raw/
+!data/processed/
+!figures/
+
+# Project-specific generated files
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.json   # stats.json is generated
+
+# But keep requirements and README
+!requirements.txt
+!README.md
+!.gitignore
+
+# Byte-compiled / optimized / DLLs
+*.pyo
+*.pyd
+
+data/raw/
+data/processed/
+figures/
+
+!data/
+!data/raw/
+!data/processed/
+!figures/
